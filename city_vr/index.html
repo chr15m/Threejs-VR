@@ -25,6 +25,11 @@
 
   var clock = new THREE.Clock();
 
+  var speed = 0;
+  var MAX_SPEED = 100;
+  var acceleration = 50;
+  var keys_down = [];
+  
   init();
   animate();
 
@@ -78,6 +83,10 @@
     window.addEventListener('deviceorientation', setOrientationControls, true);
 
     window.addEventListener('resize', resize, false);
+
+    window.addEventListener("keydown", handleKeydown, true);
+    window.addEventListener("keyup", handleKeyup, true);
+
     setTimeout(resize, 1);
   }
 
@@ -98,6 +107,12 @@
     camera.updateProjectionMatrix();
 
     controls.update(dt);
+    if (keys_down.length > 0) {
+      speed = Math.max(0, Math.min(MAX_SPEED, speed + dt * acceleration));
+    } else {
+      speed = Math.max(0, Math.min(MAX_SPEED, speed - dt * acceleration));
+    }
+    camera.translateZ( -dt * speed );
   }
 
   function render(dt) {
@@ -120,6 +135,19 @@
       container.mozRequestFullScreen();
     } else if (container.webkitRequestFullscreen) {
       container.webkitRequestFullscreen();
+    }
+  }
+
+  function handleKeydown(ev) {
+    if (keys_down.indexOf(ev.keyCode) == -1) {
+      keys_down.push(ev.keyCode);
+    }
+  }
+
+  function handleKeyup(ev) {
+    var index = keys_down.indexOf(ev.keyCode);
+    if (index != -1) {
+      keys_down.splice(index, 1);
     }
   }
 
